@@ -1,0 +1,98 @@
+<div #app id="app" class="app relative">
+  <div #relationModal id="relationModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Selecciona el tipo de relación</h5>
+        </div>
+        <div class="modal-body">
+          <!-- Contenido del modal -->
+          <label for="relationType">Tipo de Relación:</label>
+          <select id="relationType" [(ngModel)]="selectedRelationType">
+            <option value="asociacion">Asociación</option>
+            <option value="agregacion">Agregación</option>
+            <option value="composicion">Composición</option>
+            <option value="herencia">Herencia</option>
+          </select>
+
+          <label for="relationLabel">Etiqueta de la relación:</label>
+          <input type="text" id="relationLabel" [(ngModel)]="relationLabel" />
+
+          <label for="sourceMultiplicity">Multiplicidad del Source:</label>
+          <input type="text" id="sourceMultiplicity" [(ngModel)]="sourceMultiplicity" placeholder="1..*" />
+
+          <label for="targetMultiplicity">Multiplicidad del Target:</label>
+          <input type="text" id="targetMultiplicity" [(ngModel)]="targetMultiplicity" placeholder="1..*" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" (click)="confirmRelation()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div #canvas class="canvas"></div>
+
+  <!-- Botón flotante con texto "Mapeo" -->
+  <div class="relative">
+    <button
+      class="z-20 text-white flex flex-col shrink-0 grow-0 justify-around 
+                  fixed bottom-10 right-0 mt-5 mr-5 lg:mr-10 lg:mt-10 xl:mr-15 xl:mt-15
+                  rounded-lg bg-orange-600 p-3"
+      (click)="redirectToMapeo()"
+    >
+      <div class="flex items-center">
+        <span class="text-lg font-bold">Mapeo</span>
+        <svg width="24px" height="24px" viewBox="0 0 1.44 1.44" fill="none" xmlns="http://www.w3.org/2000/svg" class="ml-2">
+          <path width="48" height="48" fill="white" fill-opacity="0.01" d="M0 0H1.44V1.44H0V0z"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M0.12 1.225q0.22 -0.269 0.391 -0.305t0.325 -0.011V1.23L1.32 0.706 0.836 0.21v0.305Q0.551 0.517 0.351 0.72 0.151 0.923 0.12 1.225Z" fill="#ffffff" stroke="#000000" stroke-width="0.12" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </button>
+  </div>
+
+  <!-- Botón flotante con dropdown -->
+  <div class="relative">
+    <button
+      class="z-20 text-white flex flex-col shrink-0 grow-0 justify-around 
+                fixed top-10 left-10 mt-5 mr-5 lg:mr-10 lg:mt-10 xl:mr-15 xl:mt-15
+                rounded-lg bg-orange-600 p-3"
+      (click)="toggleDropdown($event)"
+    >
+      <div class="flex items-center">
+        <svg width="24px" height="24px" viewBox="0 0 0.48 0.48" xmlns="http://www.w3.org/2000/svg" fill="#ffffff">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M0.42 0.15H0.06V0.09h0.36zm0 0.12H0.06V0.21h0.36zM0.06 0.39h0.36v-0.06H0.06z"/>
+        </svg>
+        <span class="text-lg font-bold">Archivo</span>
+      </div>
+    </button>
+  
+    <!-- Dropdown con z-index alto -->
+    <div *ngIf="dropdownOpen" [ngStyle]="{
+      'top.px': dropdownPosition?.top,
+      'left.px': dropdownPosition?.left
+    }" class="absolute mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+    >
+      <ul>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          (click)="exportAsXMI()"
+        >
+          Exportar como XMI
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          (click)="exportAsPng()"
+        >
+          Exportar como PNG
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          (click)="exportAsSpringBoot()"
+        >
+        Exportar como Proyecto Spring Boot
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

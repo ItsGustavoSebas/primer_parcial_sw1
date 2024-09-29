@@ -23,11 +23,13 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+    "input": "src/assets",
+    "output": "/assets"
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/jointjs/dist/joint.min.css"
             ],
             "scripts": []
           },
@@ -81,7 +83,8 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+    "input": "src/assets",
+    "output": "/assets"
               }
             ],
             "styles": [
@@ -92,5 +95,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "0c7010a1-7e50-41bd-bc3d-083646e97cdd"
   }
 }

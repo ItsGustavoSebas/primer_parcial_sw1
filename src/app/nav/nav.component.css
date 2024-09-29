@@ -1,0 +1,102 @@
+
+.link-button {
+    background-color: blue;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    }
+    
+    nav {
+        background-color: #f5eee9;
+        padding: 15px;
+        font-size: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center; /* Centrar verticalmente los elementos dentro del nav */
+        justify-content: space-between;
+        
+      }
+      .project-name {
+        text-align: center;
+        flex-grow: 1;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+      }
+      
+      .logo-img {
+        height: 100%;
+        max-height: 30px; /* Ajusta el máximo alto que desees para el logo */
+      }
+      
+      ul {
+        display: flex;
+        align-items: center;
+        list-style-type: none;
+      }
+      
+      .profile-button {
+        height: 100%; /* Asegura que el botón ocupe todo el alto del nav */
+        padding: 0;
+      }
+      
+      .profile-img {
+        height: 100%; /* Hace que la imagen ocupe todo el alto del nav */
+        max-height: 35px; /* Limita el tamaño máximo de la imagen */
+      }
+      
+    
+    .logo-text {
+        font-family: 'Arial', sans-serif; /* Puedes cambiar la fuente según tus preferencias */
+        font-size: 18px; /* Tamaño del texto */
+        font-weight: bold; /* Peso del texto */
+    }
+    
+    li {
+    display: inline-block;
+    margin: 0 10px;
+    }
+    
+    a {
+    color: #000000;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    }
+    
+    a:hover {
+    background-color: #c08f66;
+    }
+    
+    @media only screen and (max-width: 600px) {
+    nav {
+    padding: 5px 0;
+    }
+    
+    li {
+    display: block;
+    margin: 10px 0;
+    }
+    }
+    
+    .aside-menu {
+        position: fixed;  /* Hace que el menú sea fijo */
+        top: 65px;
+        left: 0;
+        height: 100vh;    /* Hace que el menú ocupe toda la altura */
+        z-index: 1000;    /* Asegura que esté por encima del contenido principal */
+        transition: transform 0.3s ease; /* Para animar la apertura/cierre */
+      }
+      
+      .router-outlet-content {
+        margin-left: 0;   /* Para cuando el menú está cerrado */
+        transition: margin-left 0.3s ease; /* Suave desplazamiento */
+      }
+      
+      .aside-open ~ .router-outlet-content {
+        margin-left: 18rem; /* Ajusta este valor según el ancho de tu aside */
+      }
+      

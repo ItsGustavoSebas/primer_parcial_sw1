@@ -1,0 +1,12 @@
+<div class="container">
+
+    <p *ngIf="errorMessage" class="error-message">{{errorMessage}}</p>
+    <h2>Información del Usuario</h2>
+    <p>Name: {{profileInfo?.ourUsers?.name}}</p>
+    <p>Email: {{profileInfo?.ourUsers?.email}}</p>
+    <p>Roles: <li *ngFor="let role of profileInfo?.ourUsers?.roles">{{ role.name }}</li> </p>
+<ul>
+  
+</ul>
+    <button (click)="updateProfile(profileInfo?.ourUsers?.id)">Update Profile</button>
+</div>

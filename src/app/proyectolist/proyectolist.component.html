@@ -1,0 +1,168 @@
+<!-- component -->
+<div
+  #modal
+  class="main-modal fixed w-full inset-0 z-50 overflow-hidden flex justify-center items-center animated fadeIn faster"
+  style="background: rgba(0, 0, 0, 0.7); display: none;"
+>
+  <div
+    class="border border-blue-500 modal-container bg-white w-4/12 md:max-w-11/12 mx-auto rounded-xl shadow-lg z-50 overflow-y-auto"
+  >
+    <div class="modal-content py-4 text-left px-6">
+      <!--Title-->
+      <div class="flex justify-between items-center pb-3">
+        <p class="text-2xl font-bold text-gray-500">Ingresa los detalles del proyecto</p>
+        <div class="modal-close cursor-pointer z-50" (click)="closeModal()">
+          <svg
+            class="fill-current text-gray-500"
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+          >
+            <path
+              d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+      <!--Body-->
+      <div class="my-5 mr-5 ml-5 flex justify-center">
+        <form
+          (submit)="onSubmit()"
+          enctype="multipart/form-data"
+          class="w-full"
+        >
+          <div class="">
+            <div class="">
+              <label for="titulo" class="text-md text-gray-600">Titulo</label>
+            </div>
+            <div class="">
+              <input
+                type="text"
+                id="titulo"
+                [(ngModel)]="titulo"
+                autocomplete="off"
+                name="titulo"
+                class="h-3 p-6 w-full border-2 border-gray-300 mb-5 rounded-md"
+                placeholder=""
+                required
+              />
+            </div>
+            <div class="">
+              <label for="descripcion" class="text-md text-gray-600"
+                >Descripcion</label
+              >
+            </div>
+            <div class="">
+              <input
+                type="text"
+                id="descripcion"
+                [(ngModel)]="descripcion"
+                autocomplete="off"
+                name="descripcion"
+                class="h-3 p-6 w-full border-2 border-gray-300 mb-5 rounded-md"
+                placeholder=""
+                required
+              />
+            </div>
+              
+            <div class="max-w-2xl mx-auto">
+              <label for="file" class="text-md text-gray-600"
+                >Selecciona un archivo (opcional)</label
+              >
+              <input
+                (change)="onFileSelected($event)"
+                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 "
+                id="file_input"
+                type="file"
+              />
+              <script src="https://unpkg.com/flowbite@1.4.0/dist/flowbite.js"></script>
+            </div>
+          </div>
+          <div class="flex justify-end pt-2 space-x-14">
+            <button
+              class="px-4 bg-blue-500 p-3 ml-3 rounded-lg text-white hover:bg-teal-400"
+              type="submit"
+            >
+              Crear
+            </button>
+          </div>
+        </form>
+      </div>
+      <!--Footer-->
+      
+    </div>
+  </div>
+</div>
+<section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-4 py-12">
+  <div class="text-center pb-12">
+    <h2 class="text-base font-bold text-indigo-600">
+      Bienvenido a nuestra plataforma
+    </h2>
+    <h1
+      class="font-bold text-3xl md:text-4xl lg:text-5xl font-heading text-gray-900"
+    >
+      Ingresa a tus proyectos recientes o crea uno nuevo
+    </h1>
+  </div>
+  <div class="flex justify-between items-center py-4">
+    <div class="md:flex md:items-center md:justify-between py-4">
+      <div class="relative flex items-center mt-4 md:mt-0">
+        <span class="absolute">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-5 h-5 mx-3 text-gray-400 d"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+            />
+          </svg>
+        </span>
+
+        <input
+          type="text"
+          placeholder="Buscar"
+          class="block w-full py-1.5 pr-5 text-gray-700 bg-white border border-gray-200 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 d focus:border-blue-400 dalue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+        />
+      </div>
+    </div>
+    <button
+      (click)="openModal()"
+      class="bg-red-500 text-white px-4 py-2 rounded-lg"
+    >
+      NUEVO PROYECTO
+    </button>
+  </div>
+
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6"
+  >
+    <button
+      (click)="navigateToProyecto(proyecto.id)"
+      *ngFor="let proyecto of proyectos"
+      class="w-full bg-white rounded-lg sahdow-lg overflow-hidden flex flex-col px-4 justify-center items-center object-cover object-center scale-110 transition-all duration-400 hover:scale-100"
+    >
+      <div>
+        <img
+          class="object-center object-cover h-auto w-full"
+          [src]="proyecto.urlPreview"
+          alt="photo"
+        />
+      </div>
+      <div class="text-center py-8 sm:py-6">
+        <p class="text-xl text-gray-700 font-bold mb-2">
+          {{ proyecto.titulo }}
+        </p>
+        <p class="text-base text-gray-400 font-normal">
+          {{ proyecto.descripcion }}
+        </p>
+      </div>
+    </button>
+  </div>
+</section>

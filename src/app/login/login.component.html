@@ -1,0 +1,44 @@
+<div class="font-sans text-gray-900 antialiased">
+    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-[#f8f4f3]">
+      <div>
+        <a href="/">
+          <img src="assets/imagenes/logo.png" alt="Logo" class="logo-img"> 
+        </a>
+      </div>
+      <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+        <form (submit)="handleSubmit()">
+          <div class="py-8">
+            <span class="text-2xl font-semibold">Inicia Sesión</span>
+          </div>
+          <div class="text-red-500" *ngIf="errorMessage">{{ errorMessage }}</div>
+          <div>
+            <label class="block font-medium text-sm text-gray-700" for="email">Email</label>
+            <input type="email" id="email" [(ngModel)]="email" name="email" required autofocus autocomplete="username" placeholder="Email" class="w-full rounded-md py-2.5 px-4 border text-sm focus:outline-none focus:border-[#f84525]">
+          </div>
+          <div class="mt-4">
+            <label class="block font-medium text-sm text-gray-700" for="password">Password</label>
+            <div class="relative">
+              <input id="password" type="password" [(ngModel)]="password" name="password" required autocomplete="current-password" placeholder="Password" class="w-full rounded-md py-2.5 px-4 border text-sm focus:outline-none focus:border-[#f84525]">
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
+              </div>
+            </div>
+          </div>
+          <div class="block mt-4">
+            <label for="remember_me" class="flex items-center">
+              <input type="checkbox" id="remember_me" name="remember" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+              <span class="ml-2 text-sm text-gray-600">Recordarme</span>
+            </label>
+          </div>
+          <div class="flex items-center justify-end mt-4">
+            <a class="hover:underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="#">
+              Olvidaste tu contraseña?
+            </a>
+            <button type="submit" class="ml-4 inline-flex items-center px-4 py-2 bg-[#f84525] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+              Entrar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
