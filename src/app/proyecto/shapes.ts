@@ -69,7 +69,6 @@ export class Table extends shapes.standard.HeaderedRecord {
             refX: '50%',
             refX2: -26,
           },
-          
         },
       },
       super.defaults
@@ -101,25 +100,31 @@ export class Table extends shapes.standard.HeaderedRecord {
     super.initialize(...args);
     this.on('change', () => this.onColumnsChange());
     this._setColumns(this.get('columns'));
-  
-}
+  }
 
+  findTableByName(tables: Table[], code: string): Table | undefined {
+    return tables.find((table) => table.getCode() === code);
+  }
 
   onColumnsChange() {
     if (this.hasChanged('columns')) {
       this._setColumns(this.get('columns'));
     }
   }
-  getColumns(): Array<{ nombre: string; pk: boolean; scope: string; tipoDato: string }> {
-    const columns = this.get('columns');  // Obtenemos las columnas del objeto
+  getColumns(): Array<{
+    nombre: string;
+    pk: boolean;
+    scope: string;
+    tipoDato: string;
+  }> {
+    const columns = this.get('columns'); 
     return columns.map((col: ColumnData) => ({
-      nombre: col.name,          // Nombre de la columna
-      pk: !!col.key,             // Si es clave primaria (convertimos a booleano)
-      scope: col.scope || 'private', 
-      tipoDato: col.type,        
+      nombre: col.name, 
+      pk: !!col.key, 
+      scope: col.scope || 'private',
+      tipoDato: col.type,
     }));
   }
-  
 
   setCode(code: string) {
     this.set('code', code);
@@ -153,7 +158,6 @@ export class Table extends shapes.standard.HeaderedRecord {
 
   override toJSON() {
     const json = super.toJSON();
-    // keeping only the `columns` attribute
     delete json['items'];
     return json;
   }
@@ -161,45 +165,39 @@ export class Table extends shapes.standard.HeaderedRecord {
   protected _setColumns(data: Array<ColumnData> = []) {
     const names: Array<object> = [];
     const values: Array<object> = [];
-  
+
     data.forEach((item, i) => {
       if (!item.name) return;
-  
-      // Determinamos el scope: + para público, - para privado
+
       const scopeSymbol = item.scope === 'public' ? '+' : '-';
-  
-      // Formateamos el nombre como en UML: "scope name: type"
+
       const formattedName = `${scopeSymbol} ${item.name} : ${item.type}`;
-  
-      // Agregamos el nombre formateado a la primera fila (etiqueta de la columna)
+
       names.push({
         id: item.name,
-        label: formattedName, // Usamos el nombre formateado
+        label: formattedName, 
         span: 2,
       });
-  
+
       const value = {
         id: `${item.type}_${i}`,
       };
-  
-      // Si es una llave, agregamos el icono
+
       if (item.key) {
         Object.assign(value, {
           group: 'keys',
           icon: 'assets/key.svg',
         });
       }
-  
+
       values.push(value);
     });
-  
-    // Establecemos los items con la nueva estructura
+
     this.set('items', [names, values]);
     this.removeInvalidLinks();
-  
+
     return this;
   }
-  
 }
 
 export class Link extends dia.Link {
@@ -207,14 +205,15 @@ export class Link extends dia.Link {
     return {
       ...super.defaults,
       type: 'app.Link',
+      code: '',
       z: -1,
       attrs: {
         root: {
-          pointerEvents: "none"
+          pointerEvents: 'visibleStroke',
         },
         wrapper: {
           connection: true,
-          strokeWidth: 10
+          strokeWidth: 10,
         },
         line: {
           connection: true,
@@ -222,14 +221,23 @@ export class Link extends dia.Link {
           strokeWidth: 2,
           strokeDasharray: 'none',
           sourceMarker: {
-            d: null, // Será personalizado según el tipo de relación
+            d: null, 
           },
           targetMarker: {
-            d: null, // Será personalizado según el tipo de relación
+            d: null, 
           },
         },
       },
     };
+  }
+
+  setCode(code: string) {
+    this.set('code', code);
+    return this;
+  }
+
+  getCode(): string {
+    return this.get('code');
   }
 
   override initialize(...args: any[]) {
@@ -238,9 +246,8 @@ export class Link extends dia.Link {
     this.updateLineStyle();
   }
 
-  // Este método cambia el estilo de la línea y los marcadores según el tipo de relación
   updateLineStyle() {
-    const relationType = this.get('relationType') || 'asociacion'; // Asociación por defecto
+    const relationType = this.get('relationType') || 'asociacion'; 
 
     let lineStyle;
     let markerEnd;
@@ -248,10 +255,10 @@ export class Link extends dia.Link {
     switch (relationType) {
       case 'asociacion':
         lineStyle = {
-            stroke: '#000000',
-            strokeWidth: 2,
-            strokeDasharray: 'none',
-          };
+          stroke: '#000000',
+          strokeWidth: 2,
+          strokeDasharray: 'none',
+        };
         break;
 
       case 'agregacion':
@@ -290,7 +297,7 @@ export class Link extends dia.Link {
         };
         markerEnd = {
           type: 'path',
-          d: 'M 15 -7.5 0 0 15 7.5 Z', // Flecha más grande para herencia
+          d: 'M 15 -7.5 0 0 15 7.5 Z', 
           fill: '#F3F7F6',
         };
         break;
@@ -303,7 +310,7 @@ export class Link extends dia.Link {
         };
         markerEnd = {
           type: 'path',
-          d: 'M 10 -5 0 0 10 5 Z', // Flecha simple por defecto
+          d: 'M 10 -5 0 0 10 5 Z', 
           stroke: '#A0A0A0',
           fill: '#A0A0A0',
         };
@@ -333,8 +340,6 @@ export class Link extends dia.Link {
 }
 
 const TableView = shapes.standard.RecordView;
-
-
 
 Object.assign(shapes, {
   app: {

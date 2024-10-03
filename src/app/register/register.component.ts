@@ -16,11 +16,9 @@ export class RegisterComponent implements OnInit {
     name: '',
     email: '',
     password: '',
-    cargoId: '',
     roles: []
   };
   errorMessage: string = '';
-  cargos: any[] = [];
   roles: any[] = [];
   selectedRoles: Set<number> = new Set();
 

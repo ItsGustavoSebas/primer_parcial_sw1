@@ -55,7 +55,6 @@ export class MapeoComponent {
     }, 3000);
   }
 
-  // Eliminar Atributo
   confirmEliminarAtributo() {
     if (this.selectedCell) {
       const tabla = this.tablas[this.selectedCell.tablaIndex];
@@ -75,10 +74,9 @@ export class MapeoComponent {
     }
   }
 
-  // Normalizar Atributo
   openModal() {
     this.isModalOpen = true;
-    this.nuevosAtributos = [{ nombre: '', tipoDato: 'string', scope: 'public' }]; // Inicialmente, un atributo vacío
+    this.nuevosAtributos = [{ nombre: '', tipoDato: 'string', scope: 'public' }]; 
   }
 
   cerrarModal() {
@@ -125,11 +123,10 @@ export class MapeoComponent {
   }
 
   checkAndToggleDropdown(event: MouseEvent, tablaIndex: number, atributoIndex: number, atributo: any) {
-    // Verificar si el atributo es PK o FK
     if (!atributo.pk && !atributo.fk) {
       this.toggleDropdown(event, tablaIndex, atributoIndex);
     } else {
-      this.selectedCell = null; // Cierra el dropdown si el atributo es PK o FK
+      this.selectedCell = null; 
     }
   }  
 
@@ -138,14 +135,14 @@ export class MapeoComponent {
     const rect = target.getBoundingClientRect();
 
     this.dropdownPosition = {
-      top: rect.bottom + window.scrollY -65, // Para corregir cuando se hace scroll
+      top: rect.bottom + window.scrollY -65,
       left: rect.left + window.scrollX
     };
 
     if (this.selectedCell && this.selectedCell.tablaIndex === tablaIndex && this.selectedCell.atributoIndex === atributoIndex) {
-      this.selectedCell = null; // Cierra el dropdown si ya está abierto
+      this.selectedCell = null; 
     } else {
-      this.selectedCell = { tablaIndex, atributoIndex }; // Abre el dropdown
+      this.selectedCell = { tablaIndex, atributoIndex }; 
     }
   }
   redirectToDiseno() {

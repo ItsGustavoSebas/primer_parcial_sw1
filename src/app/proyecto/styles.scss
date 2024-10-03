@@ -84,7 +84,6 @@
                     opacity: 0.8;
                     transition: .1s linear;
                 }
-                // Remove button
                 &.left {
                     color: #F8F8FF;
                     background: #F6511D;
@@ -118,7 +117,6 @@
             padding: 0;
          }
 
-        // Column Elements
         .list-item {
             color: #636363;
             background: #FFF;
@@ -175,7 +173,6 @@
             }
         }
 
-        // Text Labels
         label,
         output,
         .units {
@@ -191,7 +188,6 @@
             content: '';
         }
 
-        // Inputs
         input[type="text"],
         input[type="number"],
         textarea,
@@ -214,7 +210,6 @@
             border-radius: 0px;
         }
 
-        // Select Input
         select {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="none" stroke-width="2" stroke="grey"><path d="M6 9l6 6 6-6"/></svg>');
             background-repeat: no-repeat;
@@ -230,13 +225,11 @@
             }
         }
 
-        // Color Input
         input[type="color"] {
             cursor: pointer;
             margin-bottom: 12px;
         }
 
-        // Toggle
         .toggle {
             width: 40px;
             height: 20px;

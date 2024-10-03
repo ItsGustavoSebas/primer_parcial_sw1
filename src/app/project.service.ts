@@ -103,7 +103,6 @@ export class ProjectService {
     return this.http.post<any>(`${this.BASE_URL}/user/proyectos/proyectoCompleto`, formData, { headers });
   }
 
-  // Función para crear un proyecto sin archivo
   createProjectWithoutFile(projectData: any, token: string): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -186,4 +185,31 @@ export class ProjectService {
     }
   }
 
+async deleteTabla(tablaId: string, token: string): Promise<any> {
+    const url = `${this.BASE_URL}/user/proyectos/delete/${tablaId}`;
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    try {
+      const response = this.http.delete<any>(url, { headers }).toPromise();
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async deleteRelacion(relacionId: string, token: string): Promise<any> {
+    const url = `${this.BASE_URL}/user/proyectos/deleteRelacion/${relacionId}`;
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    try {
+      const response = this.http.delete<any>(url, { headers }).toPromise();
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
+
+
+

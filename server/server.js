@@ -34,9 +34,11 @@ io.on('connection', (socket) => {
     switch (changeType) {
       case 'newTable':
         sharedGraphs[roomId].tables[payload.id] = payload; // Guardar la nueva tabla
+        console.log("nueva tabla", payload)
         break;
       case 'updatedTable':
-        sharedGraphs[roomId].tables[payload.id] = { ...sharedGraphs[roomId].tables[payload.id], ...payload }; // Actualizar tabla
+        sharedGraphs[roomId].tables[payload.id] = payload;
+        console.log("tabla actualizada", payload)
         break;
       case 'newRelation':
         sharedGraphs[roomId].relations[payload.id] = payload; // Guardar la nueva relación

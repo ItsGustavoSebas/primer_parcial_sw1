@@ -1,35 +1,43 @@
 <div #app id="app" class="app relative">
-  <div #relationModal id="relationModal" class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Selecciona el tipo de relación</h5>
-        </div>
-        <div class="modal-body">
-          <!-- Contenido del modal -->
-          <label for="relationType">Tipo de Relación:</label>
-          <select id="relationType" [(ngModel)]="selectedRelationType">
+  <div #relationModal id="relationModal" style="display: none;" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50" tabindex="-1" role="dialog">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <div class="modal-header border-b pb-3 mb-4">
+        <h5 class="text-xl font-semibold text-gray-800">Selecciona el tipo de relación</h5>
+      </div>
+      <div class="modal-body space-y-4">
+        <!-- Contenido del modal -->
+        <div>
+          <label for="relationType" class="block text-sm font-medium text-gray-700">Tipo de Relación:</label>
+          <select id="relationType" [(ngModel)]="selectedRelationType" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             <option value="asociacion">Asociación</option>
             <option value="agregacion">Agregación</option>
             <option value="composicion">Composición</option>
             <option value="herencia">Herencia</option>
           </select>
-
-          <label for="relationLabel">Etiqueta de la relación:</label>
-          <input type="text" id="relationLabel" [(ngModel)]="relationLabel" />
-
-          <label for="sourceMultiplicity">Multiplicidad del Source:</label>
-          <input type="text" id="sourceMultiplicity" [(ngModel)]="sourceMultiplicity" placeholder="1..*" />
-
-          <label for="targetMultiplicity">Multiplicidad del Target:</label>
-          <input type="text" id="targetMultiplicity" [(ngModel)]="targetMultiplicity" placeholder="1..*" />
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" (click)="confirmRelation()">Confirmar</button>
+  
+        <div>
+          <label for="relationLabel" class="block text-sm font-medium text-gray-700">Etiqueta de la relación:</label>
+          <input type="text" id="relationLabel" [(ngModel)]="relationLabel" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
         </div>
+  
+        <div>
+          <label for="sourceMultiplicity" class="block text-sm font-medium text-gray-700">Multiplicidad del Source:</label>
+          <input type="text" id="sourceMultiplicity" [(ngModel)]="sourceMultiplicity" placeholder="1..*" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+        </div>
+  
+        <div>
+          <label for="targetMultiplicity" class="block text-sm font-medium text-gray-700">Multiplicidad del Target:</label>
+          <input type="text" id="targetMultiplicity" [(ngModel)]="targetMultiplicity" placeholder="1..*" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+        </div>
+      </div>
+  
+      <div class="modal-footer mt-6 border-t pt-3 flex justify-end space-x-3">
+        <button type="button" class="btn btn-primary px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none" (click)="confirmRelation()">Confirmar</button>
       </div>
     </div>
   </div>
+  
 
   <div #canvas class="canvas"></div>
 

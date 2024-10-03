@@ -29,4 +29,8 @@ export class WelcomeComponent {
   goToLogin() {
     this.router.navigate(['/login']);
   }
+
+  goToRegistrarse() {
+    this.router.navigate(['/registrarse']);
+  }
 }

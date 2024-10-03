@@ -21,7 +21,6 @@ export class UsersService {
     this.usersSource.next(users);
     this.projectIdSource.next(projectId);
     this.usersSource.next(users);
-    // Guardar en localStorage para persistencia
     localStorage.setItem('projectName', projectName);
     localStorage.setItem('users', JSON.stringify(users));
     localStorage.setItem('projectId', projectId);
@@ -32,7 +31,6 @@ export class UsersService {
     this.projectIdSource.next('');
     this.usersSource.next([]);
 
-    // Limpiar datos en localStorage
     localStorage.removeItem('projectName');
     localStorage.removeItem('users');
     localStorage.removeItem('projectId');
@@ -79,6 +77,18 @@ export class UsersService {
     try {
       const response = this.http
         .post<any>(url, userData, { headers })
+        .toPromise();
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async registrar(userData: any): Promise<any> {
+    const url = `${this.BASE_URL}/auth/register`;
+    try {
+      const response = this.http
+        .post<any>(url, userData)
         .toPromise();
       return response;
     } catch (error) {

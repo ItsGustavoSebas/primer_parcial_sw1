@@ -14,9 +14,9 @@ import * as xml2js from 'xml2js';
 })
 export class ProyectolistComponent {
   @ViewChild('modal') modal!: ElementRef;
-  selectedFile: File | null = null; // Para almacenar el archivo seleccionado
-  titulo: string = ''; // Título del proyecto
-  descripcion: string = ''; // Descripción del proyecto
+  selectedFile: File | null = null; 
+  titulo: string = ''; 
+  descripcion: string = ''; 
   
   constructor(
     public readonly projectService: ProjectService,
@@ -49,7 +49,6 @@ export class ProyectolistComponent {
       if (error) {
         console.error('Error al parsear el XML:', error);
       } else {
-        // Procesar el archivo XML para extraer las clases UML
         this.processXmlContent(result);
       }
     });
@@ -76,11 +75,10 @@ export class ProyectolistComponent {
               const geometryString = posicion.$.geometry;
               const geometry = geometryString.split(';').reduce((acc: { [key: string]: number }, pair: string) => {
                 const [key, value] = pair.split('=');
-                acc[key] = parseInt(value, 10); // Convertir el valor a número
+                acc[key] = parseInt(value, 10); 
                 return acc;
               }, {});
               
-              // Asignar valores
               posicion_x = geometry['Left'];
               console.log("posicionx "+posicion_x);
               posicion_y = geometry['Top'];
@@ -236,15 +234,13 @@ export class ProyectolistComponent {
 
 
   async onSubmit() {
-    const token = localStorage.getItem('token'); // Token de autenticación
+    const token = localStorage.getItem('token'); 
     if (!token) {
       console.error('No Token Found');
       return;
     }
 
-    // Verifica si se seleccionó un archivo
     if (this.tables) {
-      // Si hay un archivo seleccionado, lo envías con los datos del proyecto
       const projectData = {
         titulo: this.titulo,
         descripcion: this.descripcion,
@@ -256,15 +252,14 @@ export class ProyectolistComponent {
         .uploadProjectWithFile(projectData, token)
         .subscribe(
           (response) => {
-            const projectId = response.projectId; // Obtener el ID del proyecto
-            this.router.navigate(['/proyecto', projectId]); // Redirigir al proyecto creado
+            const projectId = response.projectId;
+            this.router.navigate(['/proyecto', projectId]); 
           },
           (error) => {
             console.error('Error al crear proyecto sin archivo:', error);
           }
         );
     } else {
-      // Si no se selecciona archivo, envías solo los datos del proyecto
       const projectData = {
         titulo: this.titulo,
         descripcion: this.descripcion,
@@ -274,8 +269,8 @@ export class ProyectolistComponent {
         .createProjectWithoutFile(projectData, token)
         .subscribe(
           (response) => {
-            const projectId = response.projectId; // Obtener el ID del proyecto
-            this.router.navigate(['/proyecto', projectId]); // Redirigir al proyecto creado
+            const projectId = response.projectId; 
+            this.router.navigate(['/proyecto', projectId]); 
           },
           (error) => {
             console.error('Error al crear proyecto sin archivo:', error);

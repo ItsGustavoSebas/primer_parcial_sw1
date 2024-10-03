@@ -34,10 +34,10 @@ export class NavComponent implements OnInit {
   projectName: string = '';
   users: any[] = [];
   currentUrl: string = '';
-  email: string = ''; // Para almacenar el valor del input
-  accessLevel: string = 'ver'; // Para almacenar el valor del select
-  projectId: string = ''; // Almacenar el ID del proyecto
-  token: string | null = ''; // Almacenar el token
+  email: string = '';
+  accessLevel: string = 'ver'; 
+  projectId: string = '';
+  token: string | null = ''; 
 
   ngOnInit(): void {
     this.currentUrl = window.location.href; 
@@ -64,8 +64,8 @@ export class NavComponent implements OnInit {
   copyToClipboard() {
     const inputElement = document.getElementById('link') as HTMLInputElement;
     if (inputElement) {
-      inputElement.select(); // Selecciona el contenido del input
-      inputElement.setSelectionRange(0, 99999); // Para dispositivos móviles
+      inputElement.select(); 
+      inputElement.setSelectionRange(0, 99999); 
       navigator.clipboard.writeText(this.currentUrl).then(
         () => {
           console.log('Texto copiado al portapapeles');
@@ -122,7 +122,6 @@ export class NavComponent implements OnInit {
     }
   }
 
-  // Función que puedes implementar para enviar los datos
   async sendInvite(projectData: any, token: string) {
     try {
       const response = await this.projectService.enviarInvitacion(projectData, token);

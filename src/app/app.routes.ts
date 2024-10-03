@@ -11,6 +11,7 @@ import { WelcomeComponent } from './welcome/welcome.component';
 import { ProyectoComponent } from './proyecto/proyecto.component';
 import { ProyectolistComponent } from './proyectolist/proyectolist.component';
 import { MapeoComponent } from './mapeo/mapeo.component';
+import { RegistrarseComponent } from './registrarse/registrarse.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -22,6 +23,7 @@ export const routes: Routes = [
     { path: 'proyecto/:id', component: ProyectoComponent },
     { path: 'proyectomapeo/:id', component: MapeoComponent },
     { path: 'dashboard', component: ProyectolistComponent },
+    { path: 'registrarse', component: RegistrarseComponent},
     { path: 'role/update/:id', component: UpdateroleComponent, canActivate: [usersGuard] },
     { path: '', component: WelcomeComponent },
     { path: '**', redirectTo: '', pathMatch: 'full' } 

@@ -1,0 +1,29 @@
+/* Estilos para el contenedor de avatares */
+.avatars {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  /* Estilo general para los avatares */
+  .avatar-option {
+    width: 50px; /* Tamaño pequeño para los avatares */
+    height: 50px;
+    cursor: pointer;
+    border-radius: 50%; /* Forma circular */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  /* Efecto hover para que parezca interactivo */
+  .avatar-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Estilo para el avatar seleccionado */
+  .avatar-option.selected {
+    border: 3px solid #007bff; /* Borde azul para el avatar seleccionado */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.2); /* Aumentar tamaño del avatar seleccionado */
+  }
+  

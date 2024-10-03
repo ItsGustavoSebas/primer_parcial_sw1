@@ -27,8 +27,10 @@ import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { UsersService } from '../users.service';
 import { ProjectService } from '../project.service';
 import { CommonModule } from '@angular/common';
+import { io } from 'socket.io-client';
 interface RelacionSource {
   id: number;
+  code: string;
   detalle: string;
   multtarget: string;
   multsource: string;
@@ -106,6 +108,7 @@ export class ProyectoComponent implements AfterViewInit {
   private paper!: dia.Paper;
   private zoomLevel: number = 1;
   private isPanning: boolean = false;
+  private socket: any;
   private panStartPosition: { x: number; y: number } = { x: 0, y: 0 };
   private paperStartTranslate: { tx: number; ty: number } = { tx: 0, ty: 0 };
   public selectedRelationType: string = 'asociacion';
@@ -133,6 +136,7 @@ export class ProyectoComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
+    
     this.initializeGraph();
     setTheme('my-theme');
     this.addWheelZoomListener();
@@ -143,7 +147,169 @@ export class ProyectoComponent implements AfterViewInit {
     this.loadProjectData(token);
     const appElement = this.appEl.nativeElement;
     this.renderer.setStyle(appElement, 'position', 'relative');
+    this.socket = io('http://localhost:3000');
+    this.socket.emit('join', this.projectId);
+    this.socket.on('updateGraph', (data: any) => {
+      const { changeType, payload } = data;
+      console.log(data);
+      switch (changeType) {
+        case 'newTable':
+          this.addNewTableToGraph(payload);
+          break;
+        case 'updatedTable':
+          console.log("editar", payload)
+          this.updateTableInGraph(payload);
+          break;
+        case 'newRelacion':
+          this.addRelationInGraph(payload);
+          break;
+        case 'deleteTabla':
+          this.deleteTableInGraph(payload);
+          break;
+        case 'deleteRelacion':
+            this.deleteRelacionInGraph(payload);
+            break;
+      }
+    });
   }
+
+  deleteRelacionInGraph(payload: any): void {
+    const relacionToDelete = this.graph.getCells().find(cell => {
+      if (cell instanceof Link) {
+        return cell.getCode() === payload.code; 
+      }
+      return false;
+    });
+  
+    if (relacionToDelete) {
+      const relacion = relacionToDelete as Link; 
+      relacion.remove();
+    }
+  }
+
+  addRelationInGraph(payload: any): void {
+    const sourceTable = this.graph.getCells().find((cell) => {
+      return cell.get('code') === payload.tablaSourceId; 
+    });
+  
+    const targetTable = this.graph.getCells().find((cell) => {
+      return cell.get('code') === payload.tablaTargetId;
+    });
+  
+    if (sourceTable && targetTable) {
+      const newLink = new Link({
+        source: {
+          id: sourceTable.id,
+          anchor: {
+            name: payload.sourceName,
+            args: eval(
+              `(${payload.sourceArgs.replace(/(\w+):/g, '"$1":')})`
+            ),
+          },
+        },
+        target: {
+          id: targetTable.id,
+          anchor: {
+            name: payload.targetName,
+            args: eval(
+              `(${payload.targetArgs.replace(/(\w+):/g, '"$1":')})`
+            ), 
+          },
+        },
+        relationType: payload.tipoName,
+        labels: [
+          {
+            attrs: {
+              text: {
+                text: payload.multsource, 
+              },
+            },
+            position: 0.1,
+          },
+          {
+            attrs: {
+              text: {
+                text: payload.detalle, 
+              },
+            },
+            position: 0.5,
+          },
+          {
+            attrs: {
+              text: {
+                text: payload.multtarget, 
+              },
+            },
+            position: 0.9,
+          },
+        ],
+      });
+      newLink.setCode(payload.code)
+      newLink.addTo(this.graph); 
+  
+      console.log('Relación agregada correctamente.');
+    } else {
+      console.error('Error: No se encontraron las tablas de origen o destino.');
+    }
+  }
+  
+
+  deleteTableInGraph(payload: any): void {
+    const tableToUpdate = this.graph.getCells().find(cell => {
+      if (cell instanceof Table) {
+        return cell.getCode() === payload.code; 
+      }
+      return false;
+    });
+  
+    if (tableToUpdate) {
+      const table = tableToUpdate as Table; 
+      table.remove();
+    }
+  }
+
+  updateTableInGraph(payload: any): void {
+    const tableToUpdate = this.graph.getCells().find(cell => {
+      if (cell instanceof Table) {
+        return cell.getCode() === payload.code; 
+      }
+      return false;
+    });
+  
+    if (tableToUpdate) {
+      const table = tableToUpdate as Table; 
+      console.log(table)
+      table.setName(payload.name);
+
+      table.position(payload.position.x, payload.position.y);
+      
+      table.setTabColor(payload.tabColor);
+  
+      const updatedColumns = payload.columns.map((column: any) => ({
+        name: column.nombre,
+        type: column.tipoDato,
+        key: false,
+        scope: column.scope,
+      }));
+  
+      table.setColumns(updatedColumns); 
+    } else {
+      console.error('No se encontró la tabla con el código:', payload.code);
+    }
+  }
+
+  
+
+  addNewTableToGraph(payload: any): void {
+    const newTable = new Table()
+      .setName(payload.name)         
+      .setTabColor(payload.tabColor)  
+      .position(payload.position.x, payload.position.y);  
+    newTable.setCode(payload.code);
+    newTable.addTo(this.graph);
+    console.log(newTable.toJSON())
+  }
+  
 
   addStyles() {
     const style = document.createElement('style');
@@ -325,14 +491,14 @@ export class ProyectoComponent implements AfterViewInit {
           type: 'color',
         },
         'attrs/headerLabel/text': {
-          label: 'Name',
+          label: 'Nombre',
           type: 'text',
         },
         columns: {
-          label: 'Columns',
+          label: 'Atributo',
           type: 'list',
-          addButtonLabel: 'Add Column',
-          removeButtonLabel: 'Remove Column',
+          addButtonLabel: 'Add Atributo',
+          removeButtonLabel: 'Remove Atributo',
           item: {
             type: 'object',
             properties: {
@@ -404,22 +570,6 @@ export class ProyectoComponent implements AfterViewInit {
     inspector.on('change:attrs/tabColor/fill', () => {
       dialogTitleTab.style.background = table.getTabColor();
     });
-    inspector.on('change:attrs/change:x change:y', async () => {
-      const position = table.position();
-      const updatedTable = {
-        posicion_x: position.x,
-        posicion_y: position.y,
-      };
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No Token Found');
-      }
-      const response: Proyecto = await this.projectService.editarPosicion(
-        table.getCode(),
-        updatedTable,
-        token
-      );
-    });
 
     inspector.on('change:attrs/headerLabel/text', async () => {
       dialogTitleBar.textContent = table.getName();
@@ -437,6 +587,18 @@ export class ProyectoComponent implements AfterViewInit {
         updatedTable,
         token
       );
+      this.socket.emit('graphChanged', {
+        roomId: this.projectId,
+        changeType: 'updatedTable', 
+        payload: {
+          id: table.id,
+          name: table.getName(),
+          position: table.position(),
+          columns: table.getColumns(),
+          tabColor: table.getTabColor(),
+          code: table.getCode()
+        }
+      });
     });
 
     dialog.on('action:close', async () => {
@@ -456,11 +618,45 @@ export class ProyectoComponent implements AfterViewInit {
         updatedTable,
         token
       );
+      this.socket.emit('graphChanged', {
+        roomId: this.projectId,
+        changeType: 'updatedTable', 
+        payload: {
+          id: table.id,
+          name: table.getName(),
+          position: table.position(),
+          columns: table.getColumns(),
+          tabColor: table.getTabColor(),
+          code: table.getCode()
+        }
+      });
     });
     dialog.on('action:remove', () => {
       dialog.close();
-      table.remove();
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No Token Found');
+      }
+      
+      console.log("eliminar");
+    
+      this.projectService.deleteTabla(table.getCode(), token)
+        .then(() => {
+          this.socket.emit('graphChanged', {
+            roomId: this.projectId,
+            changeType: 'deleteTabla', 
+            payload: {
+              id: table.id,
+              code: table.getCode()
+            }
+          });
+          table.remove(); 
+        })
+        .catch(error => {
+          console.error("Error al eliminar la tabla:", error);
+        });
     });
+    
 
     if (!tableName) {
       const inputEl = inspector.el.querySelector(
@@ -531,6 +727,18 @@ export class ProyectoComponent implements AfterViewInit {
         throw new Error('No Token Found');
       }
 
+      this.socket.emit('graphChanged', {
+        roomId: this.projectId,
+        changeType: 'updatedTable', 
+        payload: {
+          id: table.id,
+          name: table.getName(),
+          position: table.position(),
+          columns: table.getColumns(),
+          tabColor: table.getTabColor(),
+          code: table.getCode()
+        }
+      });
       try {
         const response: Proyecto = await this.projectService.editarPosicion(
           table.getCode(),
@@ -544,7 +752,6 @@ export class ProyectoComponent implements AfterViewInit {
     });
   }
 
-  // Método para hacer zoom out
   zoomOut(): void {
     this.zoomLevel -= 0.1;
     this.paper.scale(this.zoomLevel, this.zoomLevel);
@@ -552,23 +759,20 @@ export class ProyectoComponent implements AfterViewInit {
 
   openModal() {
     if (this.relationModal) {
-      // Asegúrate de que modalElement está definido antes de acceder a nativeElement
       this.relationModal.nativeElement.style.display = 'block';
     } else {
       console.error('El modalElement no está definido aún');
     }
   }
 
-  // Función para crear tablas y relaciones basadas en el resultado de proyectService
   async loadProjectData(token: string) {
     try {
       this.proyectoId = this.route.snapshot.paramMap.get('id');
-      // Obtener los datos del proyecto
       const projectData: Proyecto = await this.projectService.getProyectById(
         this.proyectoId,
         token
       );
-
+      console.log(projectData)
       this.projectName = projectData.titulo;
       this.projectId = projectData.id;
       var users = [
@@ -590,7 +794,6 @@ export class ProyectoComponent implements AfterViewInit {
       this.userService.setProjectData(this.projectName, users, this.projectId.toString());
       const tablasMap = new Map<string, any>();
 
-      // Crear todas las tablas primero
       projectData.tablas.forEach((tabla: Tabla) => {
         const newTable = new Table()
           .setName(tabla.name)
@@ -599,26 +802,22 @@ export class ProyectoComponent implements AfterViewInit {
         newTable.setCode(tabla.id.toString());
         const columns = tabla.atributos.map((atributo) => ({
           name: atributo.nombre,
-          type: atributo.tipoDato.nombre, // Asegúrate de que el tipo de dato sea el adecuado
-          key: atributo.pk, // Usar el valor de pk para determinar si es clave primaria
+          type: atributo.tipoDato.nombre,
+          key: atributo.pk, 
           scope: atributo.scope.nombre,
           code: atributo.id,
         }));
 
         newTable.setColumns(columns).addTo(this.graph);
-        // Guardar la instancia de la tabla en el mapa con el nombre de la tabla
         tablasMap.set(tabla.name, newTable);
       });
 
-      // Luego de que todas las tablas están creadas, crear las relaciones
       projectData.tablas.forEach((tabla: Tabla) => {
         tabla.relacionesSource.forEach((relacion: RelacionSource) => {
-          // Obtener las tablas source y target del mapa utilizando el nombre
-          const sourceTable = tablasMap.get(tabla.name); // Puedes ajustar según cómo sea la fuente
+          const sourceTable = tablasMap.get(tabla.name); 
           const targetTable = tablasMap.get(relacion.tablaTarget.name);
           console.log(relacion.sourceArgs);
           if (sourceTable && targetTable) {
-            // Crear el enlace entre tablas
             const newLink = new Link({
               source: {
                 id: sourceTable.id,
@@ -638,7 +837,7 @@ export class ProyectoComponent implements AfterViewInit {
                   ),
                 },
               },
-              relationType: relacion.tipo.nombre, // Ejemplo: asociacion
+              relationType: relacion.tipo.nombre, 
               labels: [
                 {
                   attrs: {
@@ -649,7 +848,7 @@ export class ProyectoComponent implements AfterViewInit {
                   position: 0.1,
                 },
                 {
-                  attrs: { text: { text: relacion.detalle } }, // Etiqueta de la relación
+                  attrs: { text: { text: relacion.detalle } }, 
                   position: 0.5,
                 },
                 {
@@ -662,8 +861,7 @@ export class ProyectoComponent implements AfterViewInit {
                 },
               ],
             });
-
-            // Añadir el enlace al gráfico
+            newLink.setCode(relacion.id.toString())
             newLink.addTo(this.graph);
           } else {
             console.error(
@@ -677,46 +875,42 @@ export class ProyectoComponent implements AfterViewInit {
     }
   }
 
-  // Cierra el modal
   closeModal(): void {
     const modalElement = this.relationModal.nativeElement;
     modalElement.style.display = 'none';
   }
 
-  // Confirma la relación seleccionada y aplica el estilo
   confirmRelation(): void {
-    // Capturando los valores de multiplicidad y etiqueta
-    const sourceMultiplicity = this.sourceMultiplicity || ''; // Default: '1..*'
-    const targetMultiplicity = this.targetMultiplicity || ''; // Default: '1..*'
+    const sourceMultiplicity = this.sourceMultiplicity || ''; 
+    const targetMultiplicity = this.targetMultiplicity || ''; 
     const relationLabel = this.relationLabel || '';
 
-    // Configurando la relación con los valores seleccionados
     this.pendingLink.set({
       relationType: this.selectedRelationType,
       labels: [
         {
           attrs: {
             text: {
-              text: sourceMultiplicity, // Etiqueta con las multiplicidades
+              text: sourceMultiplicity, 
             },
           },
-          position: 0.1, // Posición de la etiqueta de multiplicidades
+          position: 0.1, 
         },
         {
           attrs: {
             text: {
-              text: relationLabel, // Etiqueta de la relación
+              text: relationLabel,
             },
           },
-          position: 0.5, // Posición de la etiqueta de la relación
+          position: 0.5, 
         },
         {
           attrs: {
             text: {
-              text: targetMultiplicity, // Etiqueta con las multiplicidades
+              text: targetMultiplicity, 
             },
           },
-          position: 0.9, // Posición de la etiqueta de multiplicidades
+          position: 0.9, 
         },
       ],
     });
@@ -724,45 +918,54 @@ export class ProyectoComponent implements AfterViewInit {
     const targetAnchor = this.pendingLink.get('target').anchor;
     const sourceid = this.pendingLink.get('source').id;
     const targetid = this.pendingLink.get('target').id;
-    const sourceName = sourceAnchor?.name || 'right'; // Si no está definido, usa 'top' como predeterminado
-    const sourceArgs = sourceAnchor?.args || 'dx: -40'; // Default 'dx: -40'
+    const sourceName = sourceAnchor?.name || 'right';
+    const sourceArgs = sourceAnchor?.args || '{ dy: 0 }'; 
     const tipoId = this.relationTypeMap[this.selectedRelationType];
-    // Verificar que se haya obtenido un tipoId válido
     if (!tipoId) {
       console.error('Tipo de relación no válido');
       return;
     }
-    const targetName = targetAnchor?.name || 'left'; // Si no está definido, usa 'bottom' como predeterminado
-    const targetArgs = targetAnchor?.args || 'dy: -30'; // Default 'dy: -30'
-    // Construir tablaData con los datos obtenidos de pendingLink
+    const targetName = targetAnchor?.name || 'left';
+    const targetArgs = targetAnchor?.args || '{ dy: 0 }'; 
     const tablaData = {
-      detalle: this.relationLabel || '', // Etiqueta por defecto si no se proporciona
-      multtarget: this.targetMultiplicity || '', // Multiplicidad del target
-      multsource: this.sourceMultiplicity || '', // Multiplicidad del source
+      code: '',
+      detalle: this.relationLabel || '', 
+      multtarget: this.targetMultiplicity || '', 
+      multsource: this.sourceMultiplicity || '',
       targetName: targetName,
       sourceName: sourceName,
       targetArgs: targetArgs,
       sourceArgs: sourceArgs,
-      tablaSourceId: this.graph.getCell(sourceid).get('code'), // ID del source
-      tablaTargetId: this.graph.getCell(targetid).get('code'), // ID del target
-      tipoId: tipoId, // Tipo de relación, puede ser dinámico basado en la selección
+      tablaSourceId: this.graph.getCell(sourceid).get('code'),
+      tablaTargetId: this.graph.getCell(targetid).get('code'),
+      sourceId: sourceid,
+      targetId: targetid,
+      tipoId: tipoId,
+      tipoName: this.selectedRelationType,
     };
+    console.log(tablaData)
     const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('No Token Found');
     }
     this.projectService
-      .crearRelacion(tablaData, token)
-      .then((response) => {
-        console.log('Relación creada:', response);
-        this.closeModal();
-      })
-      .catch((error) => {
-        console.error('Error al crear relación:', error);
+    .crearRelacion(tablaData, token)
+    .then((response) => {
+      console.log('Relación creada:', response);
+      const relationId = response.id.toString();
+      (this.pendingLink as Link).setCode(relationId);
+      tablaData.code = relationId;
+      this.socket.emit('graphChanged', {
+        roomId: this.projectId,
+        changeType: 'newRelacion', 
+        payload: tablaData
       });
 
-    // Cierra el modal después de confirmar
-    this.closeModal();
+      this.closeModal();
+    })
+    .catch((error) => {
+      console.error('Error al crear relación:', error);
+    });
   }
 
   initializeGraph(): void {
@@ -822,6 +1025,29 @@ export class ProyectoComponent implements AfterViewInit {
     this.paper.on('link:mouseleave', (linkView: dia.LinkView) => {
       linkView.removeTools();
     });
+    this.graph.on('remove', (cell) => {
+      if (cell instanceof Link) {
+        const linkId = cell.getCode(); 
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No Token Found');
+        }
+        this.projectService.deleteRelacion(linkId, token)
+        .then(() => {
+          this.socket.emit('graphChanged', {
+            roomId: this.projectId,
+            changeType: 'deleteRelacion', 
+            payload: {
+              id: cell.id,
+              code: linkId
+            }
+          });
+        })
+        .catch(error => {
+          console.error("Error al eliminar la tabla:", error);
+        });
+      }
+    });
     this.paper.on('element:pointerclick', (elementView: dia.ElementView) => {
       this.addStyles();
       this.editTable(elementView);
@@ -852,7 +1078,20 @@ export class ProyectoComponent implements AfterViewInit {
           table.setCode(projectData.id.toString());
           this.addStyles();
           this.editTable(table.findView(this.paper) as dia.ElementView);
-        }
+        
+        this.socket.emit('graphChanged', {
+          roomId: this.projectId,
+          changeType: 'newTable', 
+          payload: {
+            id: table.id, 
+            name: table.getName(),
+            position: table.position(),
+            columns: table.getColumns,
+            tabColor: table.getTabColor(),
+            code: table.getCode()
+          }
+        });
+      }
       }
     );
 
@@ -903,15 +1142,15 @@ export class ProyectoComponent implements AfterViewInit {
     const rect = target.getBoundingClientRect();
 
     this.dropdownPosition = {
-      top: rect.bottom + window.scrollY - 770, // Para corregir cuando se hace scroll
+      top: rect.bottom + window.scrollY - 770, 
       left: rect.left + window.scrollX - 30,
     };
 
     this.dropdownOpen = !this.dropdownOpen;
   }
   exportAsPng(): void {
-    const svgElement = this.paper.svg; // Obtener el elemento SVG del DOM
-    const svgString = new XMLSerializer().serializeToString(svgElement); // Convertir a string
+    const svgElement = this.paper.svg; 
+    const svgString = new XMLSerializer().serializeToString(svgElement); 
 
     const blob = new Blob([svgString], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -932,7 +1171,6 @@ export class ProyectoComponent implements AfterViewInit {
     img.onload = () => {
       const canvas = document.createElement('canvas');
 
-      // Convertir a número si es necesario
       canvas.width = Number(this.paper.options.width!);
       canvas.height = Number(this.paper.options.height!);
 
@@ -952,7 +1190,7 @@ export class ProyectoComponent implements AfterViewInit {
   }
 
   exportAsXMI(): void {
-    const token = localStorage.getItem('token'); // Token de autenticación
+    const token = localStorage.getItem('token'); 
     if (!token) {
       console.error('No Token Found');
       return;
@@ -963,16 +1201,16 @@ export class ProyectoComponent implements AfterViewInit {
         const url = window.URL.createObjectURL(response);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'archivo.xmi'; // Nombre del archivo
+        a.download = 'archivo.xmi'; 
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url); // Liberar memoria
+        window.URL.revokeObjectURL(url); 
         a.remove();
       });
   }
 
   exportAsSpringBoot(): void {
-    const token = localStorage.getItem('token'); // Token de autenticación
+    const token = localStorage.getItem('token'); 
     if (!token) {
       console.error('No Token Found');
       return;
@@ -983,15 +1221,14 @@ export class ProyectoComponent implements AfterViewInit {
         const url = window.URL.createObjectURL(response);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'archivo.zip'; // Nombre del archivo
+        a.download = 'archivo.zip'; 
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url); // Liberar memoria
+        window.URL.revokeObjectURL(url); 
         a.remove();
       },
       error: (err) => {
         console.error('Error al descargar el archivo:', err);
-        // Aquí puedes mostrar un mensaje de error al usuario si lo deseas
       }
     });
   }
